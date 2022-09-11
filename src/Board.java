@@ -111,11 +111,10 @@ public class Board {
 
                     rowWin = false;
                 }
-                for (int j = 0; j < row.length - 1; j++) {
-                    if (row[i].empty) {
 
-                        rowWin = false;
-                    }
+                if (row[i].empty) {
+
+                    rowWin = false;
                 }
             }
 
@@ -136,11 +135,9 @@ public class Board {
                     columnWin = false;
                 }
 
-                for (int j = 0; j < column.length - 1; j++) {
-                    if (column[i].empty) {
+                if (column[i].empty) {
 
-                        columnWin = false;
-                    }
+                    columnWin = false;
                 }
             }
 
@@ -160,11 +157,9 @@ public class Board {
                     diagonalWin = false;
                 }
 
-                for (int j = 0; j < diagonal.length - 1; j++) {
-                    if (diagonal[i].empty) {
+                if (diagonal[i].empty) {
 
-                        diagonalWin = false;
-                    }
+                    diagonalWin = false;
                 }
             }
 
