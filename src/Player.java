@@ -23,57 +23,57 @@ public class Player {
     
       //lượt của máy
       System.out.print("\tĐang suy nghĩ...");
-      delay(1000, Run.game.gridSize); //delay lại 1s, cái gì nhanh quá cũng không tốt
+      delay(1000, Game.board.gridSize); //delay lại 1s, cái gì nhanh quá cũng không tốt
       
       while(turn){
         //Dùng hàm math trong khoảng gameSize -1 để random 1 nước đi, nó sẽ trong khoảng 1 - game size
-        index = (int)Math.round((Run.game.gridSize* Run.game.gridSize-1)*Math.random());
-        move(index, Run.game);
+        index = (int)Math.round((Game.board.gridSize* Game.board.gridSize-1)*Math.random());
+        move(index, Game.board);
       }
       
     } else {
       System.out.println("\tLượt tiếp theo");
-      Run.userInput = Run.getInput("\tĐiền vào 1 giá trị, theo địa chỉ excel, ví dụ: 1A, 1B, 1C, 2A, etc.: ");
+      Game.userInput = Game.getInput("\tĐiền vào 1 giá trị, theo địa chỉ excel, ví dụ: 1A, 1B, 1C, 2A, etc.: ");
 
       //kiểm tra xem có được đánh không
       while(turn) {
       
         //kiểm tra giá trị truyền vào
-        if(validInput(Run.userInput)){
+        if(validInput(Game.userInput)){
         
-          if(Run.userInput.length()==2){
+          if(Game.userInput.length()==2){
           
-            column = Integer.parseInt(Run.userInput.substring(0,1));
-            row = letterToNumber(Run.userInput.substring(1,2));
+            column = Integer.parseInt(Game.userInput.substring(0,1));
+            row = letterToNumber(Game.userInput.substring(1,2));
             
           } else {
           
-            column = Integer.parseInt(Run.userInput.substring(0,2));
-            row = letterToNumber(Run.userInput.substring(2,3));
+            column = Integer.parseInt(Game.userInput.substring(0,2));
+            row = letterToNumber(Game.userInput.substring(2,3));
             
           }
           
-          index = Run.game.gridSize*(row-1)+(column-1);
+          index = Game.board.gridSize*(row-1)+(column-1);
           
-          if(index > (Run.game.gridSize* Run.game.gridSize)-1 || index < 0){
+          if(index > (Game.board.gridSize* Game.board.gridSize)-1 || index < 0){
           
-            Run.userInput = Run.getInput("Vị trí không hợp lệ, đi một nước khác: ");
+            Game.userInput = Game.getInput("Vị trí không hợp lệ, đi một nước khác: ");
           } else {
           
             //kiểm tra nước đi xem có hợp lệ hay không,
             //truyền vào giá trị và kết thúc lượt
-            move(index, Run.game);
+            move(index, Game.board);
             
             if(turn){
             
-              Run.userInput = Run.getInput("Vị trí đã được đánh, đi một nước khác : ");
+              Game.userInput = Game.getInput("Vị trí đã được đánh, đi một nước khác : ");
             }
             
           }
           
         } else {
         
-          Run.userInput = Run.getInput("That's not valid input.  Please choose another spot: ");
+          Game.userInput = Game.getInput("That's not valid input.  Please choose another spot: ");
         }
       }
     }
@@ -93,7 +93,7 @@ public class Player {
     
       output = (userInput.substring(0,2).matches("[1-2][0-9]") && userInput.substring(2,3).matches("[a-zA-Z]"));
       // nếu khác thì false
-      if(Integer.parseInt(userInput.substring(0,2))> Run.game.gridSize){
+      if(Integer.parseInt(userInput.substring(0,2))> Game.board.gridSize){
         output = false;
       }
     }
@@ -102,9 +102,9 @@ public class Player {
   }
 
   //xử lý nước đi
-  private void move(int index, Game game) {
+  private void move(int index, Board board) {
 
-    if(Run.game.setCell(index)){
+    if(Game.board.setCell(index)){
       turn = false;
     }
   }

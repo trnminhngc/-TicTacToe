@@ -1,248 +1,182 @@
+/*
+ * Write a tic-tac-toe program where a human user
+ * can play against  an AI bot, and where two  AI 
+ * bots can play against each other.  Write input
+ * and output code so that it's intuitive for the 
+ * user.
+ */
+
+import java.io.*;
+
 public class Game {
 
-  // Khởi tạo biến finished, check game kết thúc hay chưa
-  public boolean finished = false;
-  // Khởi tạo biến draw, show kết quả hòa
-  public boolean draw = false;
-  // kích thước trò chơi
-  public int gridSize;
+  // khởi tạo một object game
+  public static Board board;
+  // khởi tạo một biễn xác nhận người thắng
+  public static int count = 0;
+  // khởi tạo một biến nhận giá trị của người dùng
+  public static String userInput;
+  // khởi tạo một biến nhận chế độ chơi
+  private static int gameMode;
+  // Khởi tạo một biến xác nhận xem đã chọn chế độ chơi hay chưa
+  private static boolean validInput;
   
-  private Cell[] grid;
-  
-  //Tạo một bàn với size truyền vào
-  public Game(int size) {
-    // gán giá trị cho gridSize
-    this.gridSize = size;
-    // tạo mảng lưu vị trí của bàn
-    grid = new Cell[gridSize * gridSize];
-    
-    for (int i = 0; i < grid.length; i++) {
-      grid[i] = new Cell();
-    }
-  }
-  
-  //Kiểm tra xem đã có thể thắng hay chưa
-  //chạy mỗi khi đến lượt tiếp theo
-  public String output() {
-    checkForWinner();
-    return drawMap();
-  }
-  
-  //set giá trị cho ô
-  public boolean setCell(int index){
+  public static void main(String[] args){
 
-    if (grid[index].empty) {
+    int gameSize;
+    // khai báo giá trị nhỏ nhất
+    int minimumGameSize = 1;
+    // khai báo giá trị lớn nhất
+    int maximumGameSize = 26;
+  
+    //When program starts, user is met with a welcome message
+    System.out.println("\n\tGame cờ caro, giải trí không giới hạn với tổng tiền thưởng lên đến 0 đồng cho người chiến thắng");
+    System.out.println("\n\tChọn chế độ chơi.");
+    System.out.println("\n\t    (1) Người với máy");
+    System.out.println("\n\t    (2) Người với Người");
+    System.out.println("\n\t    (3) Máy với máy");
+    // gọi hàn getInput để lấy giá trị truyền vào
+    userInput = getInput("\n\tLựa chọn của bạn (1/2/3): ");
     
-      grid[index].placeMark();
-      return true;
+    //Keep asking for an answer from the user until we get a 1 or a 2
+    gameMode(userInput); //gameMode() is defines below
+
+    System.out.println("\n\tnếu nhập 3 thì sẽ có 3 cột 3 hàng, 4 thì 4 cột 4 hàng, tương tự giá trị khác( lớn hơn 1 và nhỏ hơn 26.");
+    System.out.println("\n\tNhập vào số cột số hàng: ");
+    userInput = getInput("\n\tNhập vào lớn hơn: " + minimumGameSize + " và nhỏ hơn: " + maximumGameSize + ": ");
+
+    // gán giá trị cho biến validInput
+    validInput = false;
+    // nếu validInput = false mới cho nhập
+    while(!validInput){
+
+      if( userInput.length() > 0 && (userInput.substring(0, 1).matches("[0-9]")) && (minimumGameSize <= Integer.parseInt(userInput)) && (Integer.parseInt(userInput) <= maximumGameSize) ){
+      
+        validInput = true;
+        
+      } else {
+
+        userInput = getInput("\n\tNhập vào lớn hơn: " + minimumGameSize + " và nhỏ hơn: " + maximumGameSize + ": ");
+        
+      }
+    }
+    
+    // nếu size > 15
+    if(Integer.parseInt(userInput) > 15){
+    
+      System.out.println("\n\t!!Cảnh báo !!\n\t!! Size lớn hơn 15 sẽ bị sai về mặt kích thước trong console, hoặc bạn quá giàu và có 1 cái màn hình siêu to!! \n\t!!Cảnh báo!!");
+      getInput("");
+      
+    }
+    
+    gameSize = Integer.parseInt(userInput);
+    
+    //Khởi tạo một gà mé mới
+    board = new Board(gameSize);
+    
+    //Khởi tạo 2 người chơi mới
+    Player[] players = new Player[2];
+    
+    //Khởi tạo chế độ chơi
+    if(gameMode==1){
+    
+      players[0] = new Player("HUMAN");
+      players[1] = new Player("COMPUTER");
+      
+    } else if(gameMode==2){
+
+      players[0] = new Player("HUMAN");
+      players[1] = new Player("HUMAN");
+
+    }
+    else {
+    
+      players[0] = new Player("COMPUTER");
+      players[1] = new Player("COMPUTER");
+      
+    }
+    
+    //Vẽ bảng ban đầu
+    System.out.println(board.output());
+    
+    //Chạy liên tục cho đến khi biến finished = true
+    // in ra console sau mỗi lượt đánh
+    while (!board.finished) {
+    
+      for(Player player : players){
+
+        player.go();
+        System.out.println("\n" + board.output());
+        count += 1;
+        
+        if(board.finished){
+          break;
+        }
+        
+      }
+    }
+    
+    // nếu draw trong object game  = true thì hòa
+    if (board.draw) {
+    
+      System.out.println("\n\tHòa!");
       
     } else {
-      return false;
-    }
-  }
-  
-  //kiếm tra xem có ai thắng hay chưa
-  private boolean checkForWinner() {
-    // khởi tạo để kiếm tra xem có cột nào full hay chưa
-    boolean gridFilled;
-    boolean rowWin;
-    boolean columnWin;
-    boolean diagonalWin;
     
-    Cell[][] rows = new Cell[gridSize][gridSize];
-    Cell[][] columns = new Cell[gridSize][gridSize];
-    Cell[][] diagonals = new Cell[2][gridSize]; //chỉ có 2 đường chéo
-    
-    //kiếm tra xem còn ô trống hay không, nếu hết ô trống thì end game
-    gridFilled = true;
-    for(int i = 0; i < gridSize * gridSize; i++){
-    
-      if(grid[i].empty){
-        gridFilled = false;
-      }
-    }
-
-    // gán giá trị sau khi check ô trống
-    // khi full ô thì sẽ tạm tính là hòa
-    if(gridFilled){
-      finished = true;
-      draw = true;
-    }
-
-    // gán giá trị từng hàng vào mảng 2 chiều
-    for(int i = 0; i < gridSize; i++){
-      for(int j = 0; j < gridSize; j++){
+      //nếu count chia hết cho 2 thì x thắng
+      if(count%2==1){
       
-        rows[i][j] = grid[gridSize*i+j];
-      }
-    }
-    // gán giá trị từng cột vào mảng 2 chiều
-    for(int i = 0; i < gridSize; i++){
-      for(int j = 0; j < gridSize; j++){
-      
-        columns[i][j] = grid[i+gridSize*j];
-      }
-    }
-    //gán giá trị từng đường chéo vào mảng 2 chiều
-    // cái này phải viết công thức ra giấy mới dễ hiểu được
-    for(int i = 0; i < 2; i++){
-      if(i == 0){
-        for(int j = 0; j < gridSize; j++){
+        System.out.println("\n\tX thắng!");
         
-          diagonals[i][j] = grid[(gridSize + 1) * j];
-        }
       } else {
-        for(int j = 0; j < gridSize; j++){
-        
-          diagonals[i][j] = grid[(gridSize - 1) * (j + 1)];
-        }
-      }
-    }
-    
-    //kiếm tra xem hàng full hay không
-    // nếu có thì hêt game
-    for (Cell[] row : rows) {
-    
-      //kiểm tra nếu tất cả các phần tử đều bằng nhau
-      //set finished thành true để kết thúc game
-      rowWin = true;
-      for(int i = 0; i < row.length - 1; i++) {
-        if(row[i].output()!=row[i + 1].output()){
-        
-          rowWin = false;
-        }
-        for(int j = 0; j < row.length - 1; j++){
-          if(row[i].empty){
-          
-            rowWin = false;
-          }
-        }
-      }
       
-      if(rowWin){
-        finished = true;
-        draw = false;
+        System.out.println("\n\tO thắng!");
+        
       }
     }
-
-    //kiểm tra nếu tất cả các phần tử đều bằng nhau
-    //set finished thành true để kết thúc game
-    for (Cell[] column : columns) {
-
-      columnWin = true;
-      for(int i = 0; i < column.length - 1; i++) {
-        if(column[i].output()!=column[i + 1].output()) {
-        
-          columnWin = false;
-        }
-        
-        for(int j = 0; j < column.length - 1; j++) {
-          if(column[i].empty){
-          
-            columnWin = false;
-          }
-        }
-      }
-      
-      if(columnWin){
-        finished = true;
-        draw = false;
-      }
-    }
-
-    //kiểm tra nếu tất cả các phần tử đều bằng nhau
-    //set finished thành true để kết thúc game
-    for (Cell[] diagonal : diagonals) {
-      diagonalWin = true;
-      for(int i = 0; i < diagonal.length - 1; i++) {
-        if(diagonal[i].output()!=diagonal[i + 1].output()) {
-        
-          diagonalWin = false;
-        }
-        
-        for(int j = 0; j < diagonal.length - 1; j++) {
-          if(diagonal[i].empty){
-          
-            diagonalWin = false;
-          }
-        }
-      }
-      
-      if(diagonalWin){
-        finished = true;
-        draw = false;
-      }
-    }
-    
-    return finished;
   }
   
-  //in ra map
-  //
-  private String drawMap() {
+  //lấy vào giá trị
+  public static String getInput(String prompt) {
   
-  String top = "\t\t  ";
-  String fill = "\t\t    ";
-  String divider = "\t\t ---";
-  String meat = "\t\t";
-  String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  String map = "\n";
-  
-    for(int i = 1; i < gridSize; i++) {
+    BufferedReader stdin = new BufferedReader( new InputStreamReader(System.in));
     
-      top += i + "  ";
+    System.out.print(prompt);
+    System.out.flush();
+    
+    try {
+    
+      return stdin.readLine();
       
-      if(i<9){
-        top += " ";
-      }
+    } catch (Exception e) {
+    
+      return "Error: " + e.getMessage();
       
-      fill += "|   ";
-      divider += "+---";
     }
-    
-    top += gridSize + " \n";
-    fill += "\n";
-    divider += "\n";
-    map += top + fill;
-
-
-    // đoạn này chia ra 2 for nhằm in ra các giá trị 1 2 3 a b c các thứ
-    // vòng lặp các hàng với
-    for(int row = 1; row < 2; row++){
-      // vòng lặp các cột
-      for(int column = 1; column < 2; column++){
-
-        meat += alphabet.substring(row - 1, row) + " " + grid[3 * (row - 1) + (column - 1)].output();
+  }
+  
+  //Hàm gameMode để valid giá trị user truyền vào khi chọn chế độ chơi
+  private static void gameMode(String userInput) {
+    // gán giá trị cho biến validInput
+    validInput = false;
+    // kiếm tra xem biến validInput có đang là false hay không, nếu không thì không cho xét lại chế độ chơi
+    while(!validInput){
+      // kiểm tra nếu có truyền vào lựa chọn không, sau đó có chọn khoảng 1 đến 3 hay không
+      if((userInput.length() == 1) && (userInput.substring(0,1).matches("[1-3]"))){
+        // nếu có set validInput = true
+        validInput = true;
         
-        for(int i = 2; i < gridSize + 1; i++){
-          // in ra giá trị của ô
-          meat += " | " + grid[3 * (row - 1) + (i - 1)].output();
-        }
       }
-      
-      meat += "\n";
+      // không thỏa mãn điều kiện thì bắt nhập lại
+      else {
+        // gọi lại hàm getInput
+        userInput = getInput("\n\tVui lòng chọn 1, 2 hoặc 3 cho chế độ chơi phù hợp: ");
+        
+      }
     }
     
-    map += meat + fill;
-
-    for (int row = 2; row < gridSize + 1; row++){
-
-      map += divider;
-      map += fill;
-
-      for(int column = 1; column < 2; column++){
-
-        meat = "\t\t" + alphabet.substring(row - 1, row) + " " + grid[gridSize * (row - 1) + (column - 1)].output();
-
-        for(int i = column + 1; i < gridSize + 1; i++){
-          // in ra giá trị của ô
-          meat += " | " + grid[gridSize * (row - 1) + (i - 1)].output();
-        }
-      }
-
-      map += meat + "\n" + fill;
-    }
+    //Chuyển lựa chọn của người dùng vào biến gameMode để lát nữa gọi đến
+    gameMode = Integer.parseInt(userInput);
     
-    return map;
   }
 }

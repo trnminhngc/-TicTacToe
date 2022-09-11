@@ -16,7 +16,7 @@ public class Cell {
   
   public void placeMark() {
   
-    if(Run.count%2==0){
+    if(Game.count%2==0){
       this.contents = "X";
     } else {
       this.contents = "O";
